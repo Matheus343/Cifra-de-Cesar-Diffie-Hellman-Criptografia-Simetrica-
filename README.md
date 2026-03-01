@@ -25,14 +25,12 @@ Implementar uma comunicação TCP segura entre dois interlocutores — **Alice (
 
 | Arquivo | Descrição |
 |---|---|
-| `tcpServer_final.py` | Servidor TCP (Bob) — Diffie-Hellman + Cifra de César |
-| `tcpClient_final.py` | Cliente TCP (Alice) — Diffie-Hellman + Cifra de César |
-| `Simple_tcpServer_cesar.py` | Servidor TCP com Cifra de César e chave fixa (Etapa 2) |
-| `Simple_tcpClient_cesar.py` | Cliente TCP com Cifra de César e chave fixa (Etapa 2) |
+| `TCPServerDH.py` | Servidor TCP (Bob) — Diffie-Hellman + Cifra de César + validação de primos |
+| `TCPClientDH.py` | Cliente TCP (Alice) — Diffie-Hellman + Cifra de César + validação de primos |
+| `TCPServerCesar.py` | Servidor TCP com Cifra de César e chave fixa (Etapa 2) |
+| `TCPClientCesar.py` | Cliente TCP com Cifra de César e chave fixa (Etapa 2) |
 | `Simple_tcpServer.py` | Servidor TCP original sem criptografia (Etapa 1) |
 | `Simple_tcpClient.py` | Cliente TCP original sem criptografia (Etapa 1) |
-| `primo_fast.py` | Teste de primalidade com parada antecipada |
-| `primo_slow.py` | Teste de primalidade sem parada antecipada |
 
 ---
 
@@ -42,12 +40,12 @@ Implementar uma comunicação TCP segura entre dois interlocutores — **Alice (
 
 **Terminal 1 — inicie o servidor primeiro:**
 ```bash
-python tcpServer_final.py
+python TCPServerDH.py
 ```
 
 **Terminal 2 — inicie o cliente depois:**
 ```bash
-python tcpClient_final.py
+python TCPClientDH.py
 ```
 
 Para simular as duas máquinas no mesmo computador, o cliente já está configurado com `127.0.0.1` (localhost). Para rodar em máquinas distintas, altere a linha `serverName` no cliente para o IP real do servidor.
@@ -88,18 +86,18 @@ Alice                                    Bob
   |◄─── resposta cifrada (chave=segredo)──|
 ```
 
-Os parâmetros públicos `p` e `g` são validados com os algoritmos **primo fast** e **primo slow** antes de qualquer comunicação.
+Os parâmetros públicos `p` e `g` são validados com os algoritmos **primo fast** e **primo slow** integrados diretamente no `TCPServerDH.py` e `TCPClientDH.py` antes de qualquer comunicação.
 
 ---
 
 ## ⏱️ Primo Fast vs Primo Slow
 
-| | `primo_fast.py` | `primo_slow.py` |
+| | Primo Fast | Primo Slow |
 |---|---|---|
 | Estratégia | Para ao encontrar o 1º divisor | Conta **todos** os divisores |
 | Velocidade | Muito mais rápido para não-primos | Sempre percorre até N |
 
-Ambos os algoritmos estão integrados nos arquivos finais para validar os parâmetros do Diffie-Hellman na inicialização.
+Ambos os algoritmos estão integrados no `TCPServerDH.py` e `TCPClientDH.py` para validar os parâmetros do Diffie-Hellman na inicialização.
 
 ---
 
@@ -115,8 +113,9 @@ Para capturar o tráfego localmente:
 
 | Etapa | Payload capturado no Wireshark |
 |---|---|
-| Etapa 1 (sem criptografia) | `hello world` — texto legível |
-| Etapa 2 e 3 (com criptografia) | `olssv'~vysk` — texto cifrado |
+| Etapa 1 — `Simple_tcpServer.py` | `hello world` — texto legível |
+| Etapa 2 — `TCPServerCesar.py` | texto cifrado com chave fixa |
+| Etapa 3 — `TCPServerDH.py` | texto cifrado com chave negociada via DH |
 
 ---
 
